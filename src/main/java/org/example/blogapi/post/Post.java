@@ -28,7 +28,7 @@ public class Post {
             joinColumns = @JoinColumn(name = "post_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
-    private Set<Tag> postTags = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
 
     public Post() {}
 
@@ -66,12 +66,12 @@ public class Post {
         return createdAt;
     }
 
-    public Set<Tag> getPostTags() {
-        return postTags;
+    public Set<Tag> getTags() {
+        return tags;
     }
 
-    public void setPostTags(Set<Tag> postTags) {
-        this.postTags = postTags;
+    public void setTags(Set<Tag> postTags) {
+        this.tags = postTags;
     }
 
     public void setCreatedAt(LocalDateTime creatsedAt) {

@@ -16,7 +16,7 @@ public class Tag {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "postTags")
+    @ManyToMany(mappedBy = "tags") // "tags" is the attribute inside Post entity (ie private Set<Tag> tags)
     private Set<Post> posts = new HashSet<>();
 
     public Tag() {}
