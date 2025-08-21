@@ -14,15 +14,24 @@ public class PostResponse {
 
     public PostResponse() {}
 
-    public PostResponse(Long id, String title, String content, List<String> tags) {
+    public PostResponse(Long id, String title, String content, LocalDateTime createdAt, List<String> tags) {
         this.id = id;
         this.title = title;
         this.content = content;
+        this.createdAt = createdAt;
         this.tags = tags;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
     public void setId(Long id) {

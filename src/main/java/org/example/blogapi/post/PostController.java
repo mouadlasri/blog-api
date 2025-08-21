@@ -1,15 +1,15 @@
 package org.example.blogapi.post;
 
+import org.example.blogapi.post.dto.CreatePostRequest;
 import org.example.blogapi.post.dto.PostResponse;
 import org.example.blogapi.tag.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,6 +37,7 @@ public class PostController {
                     post.getId(),
                     post.getTitle(),
                     post.getContent(),
+                    post.getCreatedAt(),
                     tagNames
             );
         }).collect(Collectors.toList());
@@ -52,11 +53,28 @@ public class PostController {
                     post.getId(),
                     post.getTitle(),
                     post.getContent(),
+                    post.getCreatedAt(),
                     post.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())
             );
             return ResponseEntity.ok(response);
         } else {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + id);
         }
+    }
+
+    @PostMapping
+    public ResponseEntity<PostResponse> createPost(@RequestBody CreatePostRequest request) {
+        Post createdPost = postService.createPost(request);
+
+        PostResponse response = new PostResponse(
+                createdPost.getId(),
+                createdPost.getTitle(),
+                createdPost.getContent(),
+                createdPost.getCreatedAt(),
+                createdPost.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+
     }
 }

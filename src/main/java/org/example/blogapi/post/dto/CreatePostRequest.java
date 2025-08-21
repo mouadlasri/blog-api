@@ -7,7 +7,7 @@ import java.util.List;
 public class CreatePostRequest {
     private String title;
     private String content;
-    private List<Tag> tags;
+    private List<String> tags;
 
     public CreatePostRequest() {}
 
@@ -32,11 +32,11 @@ public class CreatePostRequest {
         this.content = content;
     }
 
-    public List<Tag> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 }
