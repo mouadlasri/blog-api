@@ -15,7 +15,7 @@ public class Post {
     private Long id;
 
     @Column(name = "title")
-    private String post;
+    private String title;
 
     @Column(name = "content")
     private String content;
@@ -32,8 +32,8 @@ public class Post {
 
     public Post() {}
 
-    public Post(String post, String content, LocalDateTime createdAt) {
-        this.post =  post;
+    public Post(String title, String content, LocalDateTime createdAt) {
+        this.title =  title;
         this.content = content;
         this.createdAt = createdAt;
     }
@@ -46,12 +46,12 @@ public class Post {
         this.id = id;
     }
 
-    public String getPost() {
-        return post;
+    public String getTitle() {
+        return title;
     }
 
-    public void setPost(String post) {
-        this.post = post;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getContent() {
@@ -66,7 +66,15 @@ public class Post {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public Set<Tag> getPostTags() {
+        return postTags;
+    }
+
+    public void setPostTags(Set<Tag> postTags) {
+        this.postTags = postTags;
+    }
+
+    public void setCreatedAt(LocalDateTime creatsedAt) {
         this.createdAt = createdAt;
     }
 }
