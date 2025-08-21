@@ -1,8 +1,11 @@
 package org.example.blogapi.post;
 
 import jakarta.persistence.*;
+import org.example.blogapi.tag.Tag;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "post")
@@ -11,14 +14,21 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column (name = "title")
+    @Column(name = "title")
     private String post;
 
-    @Column (name = "content")
+    @Column(name = "content")
     private String content;
 
-    @Column (name = "created_at")
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @ManyToMany
+    @JoinTable(name="post_tags",
+            joinColumns = @JoinColumn(name = "post_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> postTags = new HashSet<>();
 
     public Post() {}
 
