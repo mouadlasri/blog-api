@@ -64,6 +64,7 @@ public class PostController {
 
     @PostMapping
     public ResponseEntity<PostResponse> createPost(@RequestBody CreatePostRequest request) {
+        // pass DTO to the service (which handles the business logic)
         Post createdPost = postService.createPost(request);
 
         PostResponse response = new PostResponse(
@@ -75,6 +76,29 @@ public class PostController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<PostResponse> updatePost(@PathVariable Long id, @RequestBody CreatePostRequest request) {
+        // pass DTO to the service (which handles the business logic)
+        Post updatedPost = postService.updatePost(id, request);
+
+        // convert updatedPost to response DTO
+        PostResponse response = new PostResponse(
+                updatedPost.getId(),
+                updatedPost.getTitle(),
+                updatedPost.getContent(),
+                updatedPost.getCreatedAt(),
+                updatedPost.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())
+        );
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
+        postService.deletePost(id);
+
+        return ResponseEntity.noContent().build();
     }
 }

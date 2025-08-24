@@ -3,8 +3,10 @@ package org.example.blogapi.post;
 import org.example.blogapi.post.dto.CreatePostRequest;
 import org.example.blogapi.tag.Tag;
 import org.example.blogapi.tag.TagRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,5 +47,31 @@ public class PostService {
         }
 
         return postRepository.save(post);
+    }
+
+    @Transactional
+    public Post updatePost(Long id, CreatePostRequest request) {
+        Post postToUpdate = postRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + id));
+
+        postToUpdate.getTags().clear(); // clear the HashSet of tags
+
+        // update the tags of new post
+        for (String tagName : request.getTags()) {
+            Tag tag = tagRepository.findByName(tagName)// save new tag, if not exists create new one
+                    .orElseGet(() -> new Tag(tagName));
+
+            postToUpdate.getTags().add(tag);
+            tag.getPosts().add(postToUpdate); // Maintain the bidirectional relationship
+        }
+
+        return postRepository.save(postToUpdate);
+    }
+
+    public void deletePost(Long id) {
+        if (!postRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + id);
+        }
+        postRepository.deleteById(id);
     }
 }
