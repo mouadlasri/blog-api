@@ -2,6 +2,8 @@ package org.example.blogapi.comment;
 
 import org.example.blogapi.comment.dto.CommentResponse;
 import org.example.blogapi.comment.dto.CreateCommentRequest;
+import org.example.blogapi.post.Post;
+import org.example.blogapi.post.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,17 +13,20 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/comments")
 public class CommentController {
     private CommentService commentService;
+    private PostService postService;
 
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, PostService postService) {
         this.commentService = commentService;
+        this.postService = postService;
     }
 
-    @GetMapping
-    public List<CommentResponse> getAllComments() {
-        List<Comment> comments = commentService.getAll();
+    @GetMapping("/api/posts/{postId}/comments")
+    public List<CommentResponse> getAllComments(@PathVariable Long postId) {
+        Post post = postService.getPostById(postId);
+
+        List<Comment> comments = commentService.getCommentsByPostId(post.getId());
 
         return comments.stream().map(comment -> new CommentResponse(
                 comment.getId(),
@@ -32,25 +37,10 @@ public class CommentController {
         )).collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<CommentResponse> getCommentById(@PathVariable Long id) {
-        Comment comment = commentService.getById(id); // service handles the not found exception
-
-        CommentResponse response = new CommentResponse(
-                comment.getId(),
-                comment.getText(),
-                comment.getAuthor(),
-                comment.getCreatedAt(),
-                comment.getPost().getId()
-        );
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{id}")
-    public ResponseEntity<CommentResponse> createComment(@PathVariable Long id, @RequestBody CreateCommentRequest request) {
+    @PostMapping("/api/posts/{postId}/comments")
+    public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId, @RequestBody CreateCommentRequest request) {
         // pass DTO to service to handle business logic
-        Comment createdComment = commentService.createComment(request);
+        Comment createdComment = commentService.createComment(postId, request);
 
         // convert entity to DTO
         CommentResponse response = new CommentResponse(
@@ -62,6 +52,27 @@ public class CommentController {
         );
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PutMapping("/api/comments/{id}")
+    public ResponseEntity<CommentResponse> updateComment(@PathVariable Long id, @RequestBody CreateCommentRequest request) {
+        Comment updatedComment = commentService.updateComment(id, request);
+
+        CommentResponse response = new CommentResponse(
+                updatedComment.getId(),
+                updatedComment.getText(),
+                updatedComment.getAuthor(),
+                updatedComment.getCreatedAt(),
+                updatedComment.getPost().getId()
+        );
+
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @DeleteMapping("/api/comments/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        commentService.deleteComment(id);
+        return ResponseEntity.noContent().build();
     }
 
 }

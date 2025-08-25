@@ -1,5 +1,6 @@
 package org.example.blogapi.comment;
 
+import org.apache.coyote.Response;
 import org.example.blogapi.comment.dto.CreateCommentRequest;
 import org.example.blogapi.post.Post;
 import org.example.blogapi.post.PostRepository;
@@ -36,10 +37,19 @@ public class CommentService {
         }
     }
 
+    public List<Comment> getCommentsByPostId(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + postId));
+
+        List<Comment> comments = commentRepository.findByPostId(post.getId());
+
+        return comments;
+    }
+
     @Transactional
-    public Comment createComment(CreateCommentRequest request) {
-        Post post = postRepository.findById(request.getPostId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + request.getPostId()));
+    public Comment createComment(Long postId, CreateCommentRequest request) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found with ID: " + postId));
 
         Comment comment = new Comment();
         comment.setText(request.getText());
@@ -53,4 +63,26 @@ public class CommentService {
         return commentRepository.save(comment);
      }
 
+     @Transactional
+     public Comment updateComment(Long id, CreateCommentRequest request) {
+        Comment commentToUpdate = commentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found with ID: " + id));
+
+        if (request.getText() != null) {
+            commentToUpdate.setText(request.getText());
+        }
+
+        if (request.getAuthor() != null) {
+            commentToUpdate.setAuthor(request.getAuthor());
+        }
+
+        return commentRepository.save(commentToUpdate);
+     }
+
+     public void deleteComment(Long id) {
+        if (!commentRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Comment not found with ID: " + id);
+        }
+        commentRepository.deleteById(id);
+     }
 }
