@@ -1,11 +1,14 @@
 package org.example.blogapi.post;
 
 import jakarta.persistence.*;
+import org.example.blogapi.comment.Comment;
 import org.example.blogapi.tag.Tag;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -31,6 +34,9 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true) // post field in the Comment entity is the owning side of the relationship
+    private Set<Comment> comments = new HashSet<>();
 
     public Post() {}
 
@@ -68,6 +74,14 @@ public class Post {
         return createdAt;
     }
 
+    public Set<Comment> getComments() {
+        return comments;
+    }
+
+    public void setComments(Set<Comment> comments) {
+        this.comments = comments;
+    }
+
     public Set<Tag> getTags() {
         return tags;
     }
@@ -76,7 +90,9 @@ public class Post {
         this.tags = postTags;
     }
 
-    public void setCreatedAt(LocalDateTime creatsedAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+
 }
