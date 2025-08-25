@@ -26,8 +26,14 @@ public class PostService {
         return postRepository.findAll();
     }
 
-    public Optional<Post> getPostById(Long id) {
-        return postRepository.findById(id);
+    public Post getPostById(Long id) {
+        Optional<Post> optionalPost = postRepository.findById(id);
+
+        if (optionalPost.isPresent()) {
+            return optionalPost.get();
+        } else {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + id);
+        }
     }
 
     @Transactional

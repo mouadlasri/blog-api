@@ -1,5 +1,6 @@
 package org.example.blogapi.post.dto;
 
+import org.example.blogapi.comment.dto.CommentResponse;
 import org.example.blogapi.tag.Tag;
 
 import java.time.LocalDateTime;
@@ -11,19 +12,29 @@ public class PostResponse {
     private String content;
     private LocalDateTime createdAt;
     private List<String> tags;
+    private List<CommentResponse> comments;
 
     public PostResponse() {}
 
-    public PostResponse(Long id, String title, String content, LocalDateTime createdAt, List<String> tags) {
+    public PostResponse(Long id, String title, String content, LocalDateTime createdAt, List<String> tags, List<CommentResponse> comments) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.createdAt = createdAt;
         this.tags = tags;
+        this.comments = comments;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public List<CommentResponse> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentResponse> comments) {
+        this.comments = comments;
     }
 
     public LocalDateTime getCreatedAt() {

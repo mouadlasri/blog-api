@@ -1,5 +1,6 @@
 package org.example.blogapi.post;
 
+import org.example.blogapi.comment.dto.CommentResponse;
 import org.example.blogapi.post.dto.CreatePostRequest;
 import org.example.blogapi.post.dto.PostResponse;
 import org.example.blogapi.tag.Tag;
@@ -29,6 +30,15 @@ public class PostController {
         List<Post> posts = postService.getAll();
 
         return posts.stream().map(post -> {
+            // get all comments for each post
+            List<CommentResponse> commentResponses = post.getComments().stream().map(comment -> new CommentResponse(
+                    comment.getId(),
+                    comment.getText(),
+                    comment.getAuthor(),
+                    comment.getCreatedAt(),
+                    comment.getPost().getId()
+            )).collect(Collectors.toList());
+
             // get all the tag names for each post
             List<String> tagNames = post.getTags().stream().map(tag -> tag.getName())
                     .collect(Collectors.toList());
@@ -38,28 +48,38 @@ public class PostController {
                     post.getTitle(),
                     post.getContent(),
                     post.getCreatedAt(),
-                    tagNames
+                    tagNames,
+                    commentResponses
             );
         }).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long id) {
-        Optional<Post> optionalPost = postService.getPostById(id);
+        Post post = postService.getPostById(id);
 
-        if (optionalPost.isPresent()) {
-            Post post = optionalPost.get();
-            PostResponse response = new PostResponse(
-                    post.getId(),
-                    post.getTitle(),
-                    post.getContent(),
-                    post.getCreatedAt(),
-                    post.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())
-            );
-            return ResponseEntity.ok(response);
-        } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Post not found with ID: " + id);
-        }
+        // get all comments of this post
+        List<CommentResponse> comments = post.getComments().stream().map(comment -> new CommentResponse(
+                comment.getId(),
+                comment.getText(),
+                comment.getAuthor(),
+                comment.getCreatedAt(),
+                comment.getPost().getId()
+        )).collect(Collectors.toList());
+
+        // get all tags of this post
+        List<String> tags = post.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
+
+        PostResponse response = new PostResponse(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreatedAt(),
+                tags,
+                comments
+        );
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
@@ -72,7 +92,8 @@ public class PostController {
                 createdPost.getTitle(),
                 createdPost.getContent(),
                 createdPost.getCreatedAt(),
-                createdPost.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())
+                createdPost.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList()),
+                List.of() // pass an empty list of comments on creation
         );
 
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -83,13 +104,23 @@ public class PostController {
         // pass DTO to the service (which handles the business logic)
         Post updatedPost = postService.updatePost(id, request);
 
+        // get comments and map them to DTOs
+        List<CommentResponse> commentResponses = updatedPost.getComments().stream().map(comment -> new CommentResponse(
+                comment.getId(),
+                comment.getText(),
+                comment.getAuthor(),
+                comment.getCreatedAt(),
+                comment.getPost().getId()
+        )).collect(Collectors.toList());
+
         // convert updatedPost to response DTO
         PostResponse response = new PostResponse(
                 updatedPost.getId(),
                 updatedPost.getTitle(),
                 updatedPost.getContent(),
                 updatedPost.getCreatedAt(),
-                updatedPost.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList())
+                updatedPost.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList()),
+                commentResponses
         );
 
         return ResponseEntity.ok(response);
@@ -98,7 +129,6 @@ public class PostController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable Long id) {
         postService.deletePost(id);
-
         return ResponseEntity.noContent().build();
     }
 }
