@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog - Fixed</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>My Blog</h1>
+
+    <div class="create-form">
+        <h2>Create a New Post</h2>
+        <form hx-post="/web/posts" hx-target="#post-list" hx-swap="afterbegin" hx-on::after-request="this.reset()" hx-ext="json-enc">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required>
+
+            <label for="content">Content:</label>
+            <textarea id="content" name="content" required></textarea>
+
+            <label for="tags">Tags (comma-separated):</label>
+            <input type="text" id="tags" name="tags">
+
+            <button type="submit" class="button">Create Post</button>
+        </form>
+    </div>
+
+    <script>
+        // Listen for the htmx:configRequest event, which fires before a request is sent
+        document.body.addEventListener('htmx:configRequest', function(evt) {
+            // fheck if the request is for the create post form
+            if (evt.detail.verb === 'post' && evt.detail.path === '/web/posts') {
+                // get the raw tags string from the form data
+                let tagsString = evt.detail.parameters.tags;
+
+                // convert the comma-separated string to an array and reassign it
+                if (tagsString) {
+                    evt.detail.parameters.tags = tagsString.split(',').map(tag => tag.trim());
+                } else {
+                    // If no tags, send an empty array
+                    evt.detail.parameters.tags = [];
+                }
+            }
+        });
+
+    </script>
+
+    <div id="post-list">
+        <div hx-get="/web/posts" hx-trigger="load" hx-swap="innerHTML" hx-headers='{"Accept": "text/html"}'>
+            <p class="loading">Loading posts...</p>
+        </div>
+    </div>
+</div>
+</body>
+</html>

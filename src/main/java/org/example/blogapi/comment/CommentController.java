@@ -4,7 +4,9 @@ import org.example.blogapi.comment.dto.CommentResponse;
 import org.example.blogapi.comment.dto.CreateCommentRequest;
 import org.example.blogapi.post.Post;
 import org.example.blogapi.post.PostService;
+import org.example.blogapi.web.CommentViewHelper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -74,5 +76,4 @@ public class CommentController {
         commentService.deleteComment(id);
         return ResponseEntity.noContent().build();
     }
-
 }

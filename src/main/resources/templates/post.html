@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Post Details</title>
+    <script src="https://unpkg.com/htmx.org@1.9.6"></script>
+    <script src="https://unpkg.com/htmx.org/dist/ext/json-enc.js"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<div class="container">
+    <div class="container">
+        <a href="/" class="button" style="margin-bottom: 20px;">← Back to all posts</a>
+
+    </div>
+
+    <div id="post-content"
+         th:attr="hx-get='/web/posts/' + ${id}"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         hx-headers='{"Accept": "text/html"}'>
+        <p>Loading post...</p>
+    </div>
+    <hr>
+
+    <h2>Comments</h2>
+    <div id="comments-list"
+         th:attr="hx-get='/web/posts/' + ${id} + '/comments'"
+         hx-trigger="load"
+         hx-swap="innerHTML"
+         hx-headers='{"Accept": "text/html"}'>
+        <p>Loading comments...</p>
+    </div>
+
+    <div class="create-form">
+        <h3>Add a Comment</h3>
+        <form th:attr="hx-post='/web/posts/' + ${id} + '/comments'"
+              hx-target="#comments-list"
+              hx-swap="beforeend"
+              hx-on::after-request="this.reset()"
+              hx-ext="json-enc">
+            <label for="text">Comment:</label>
+            <textarea id="text" name="text" required></textarea>
+
+            <label for="author">Your Name:</label>
+            <input type="text" id="author" name="author" required>
+
+            <button type="submit" class="button">Submit Comment</button>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

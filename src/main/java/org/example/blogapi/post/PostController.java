@@ -4,11 +4,14 @@ import org.example.blogapi.comment.dto.CommentResponse;
 import org.example.blogapi.post.dto.CreatePostRequest;
 import org.example.blogapi.post.dto.PostResponse;
 import org.example.blogapi.tag.Tag;
+import org.example.blogapi.web.PostViewHelper;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.print.attribute.standard.Media;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
@@ -25,7 +28,7 @@ public class PostController {
         this.postService = postService;
     }
 
-    @GetMapping
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PostResponse> getAllPosts() {
         List<Post> posts = postService.getAll();
 
@@ -131,4 +134,5 @@ public class PostController {
         postService.deletePost(id);
         return ResponseEntity.noContent().build();
     }
+
 }
